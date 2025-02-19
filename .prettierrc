@@ -1,0 +1,8 @@
+{
+  "tabWidth": 2,
+  "useTabs": false,
+  "endOfLine": "crlf",
+  "charset": "utf-8",
+  "trailingWhitespace": false,
+  "insertFinalNewline": false
+}
