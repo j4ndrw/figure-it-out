@@ -1,19 +1,51 @@
 export const theme = {
   colors: {
-    primary: "#23CE6B",
-    borderPrimary: "#0C4624",
-    secondary: "#A846A0",
-    borderSecondary: "#481E44",
-    background: "#F6F8FF",
-    text: "#272D2D",
+    primary: "#421891",
+    borderPrimary: "#78757c",
+    secondary: "#8562b6",
+    borderSecondary: "#605c64",
+    background: "#1d1923",
+    text: "#FFFFFF",
   },
   fonts: {
-    body: "Comic Sans MS, cursive, sans-serif",
+    family: "Comic Sans MS, cursive, sans-serif",
+    size: {
+      body: "16px",
+      heading: "24px",
+      subheading: "20px",
+    }
+  },
+  chatTextArea: {
+    background: "#2e2933",
+    border: "2px solid",
+    borderRadius: "8px",
+    focus: {
+      outline: "1px solid",
+    },
   },
   button: {
-      padding: "0.5rem 1rem",
-      borderRadius: "16px",
-      border: "0.75px solid",
+    padding: "0.5rem 1rem",
+    borderRadius: "8px",
+    border: "1.5px solid",
+  },
+  game: {
+    box: {
+      border: {
+        color: "#FFFFFF",
+      },
+    },
+    width: (options?: { withUnits: boolean }) => {
+      const value = 1280;
+
+      if (options?.withUnits) return `${value}px`;
+      return value;
+    },
+    height: (options?: { withUnits: boolean }) => {
+      const value = 720;
+
+      if (options?.withUnits) return `${value}px`;
+      return value;
+    },
   },
   spacing: (factor: number) => `${0.25 * factor}rem`,
 } as const;
