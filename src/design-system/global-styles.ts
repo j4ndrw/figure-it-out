@@ -9,7 +9,7 @@ const globalStyles = css`
   }
 
   body, #root {
-    font-family: ${theme.fonts.body};
+    font-family: ${theme.fonts.family};
     background-color: ${theme.colors.background};
     color: ${theme.colors.text}
     line-height: 1.6;
