@@ -3,6 +3,8 @@ import { GameMeta } from "./types";
 import { createGame } from "./bootstrap";
 import { eventBus } from "@/tools/event-bus";
 import { useGameStore } from "@/store";
+import { GAME_CONTAINER_ID } from "./constants";
+import { GameBox } from "./styled";
 
 type Props = {
   onSceneUpdated?: (scene_instance: Phaser.Scene) => void;
@@ -41,6 +43,6 @@ export const Game = forwardRef<GameMeta, Props>(
       [runScene, ref],
     );
 
-    return <div id="game-container"></div>;
+    return <GameBox id={GAME_CONTAINER_ID} />;
   },
 );
