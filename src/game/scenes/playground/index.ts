@@ -1,10 +1,8 @@
-import { theme } from "@/design-system";
 import { controls, Controls, createControl } from "@/game/entities/controls";
-import { player, Player } from "@/game/entities/player";
+import { Player } from "@/game/entities/player";
 import {
-  applyGravityAfterJumpWearsOff,
+  applyGravity,
   createPlayer,
-  executeJump,
   handleMovement,
 } from "@/game/systems/player";
 import { eventBus } from "@/tools/event-bus";
@@ -34,10 +32,8 @@ export class Playground extends Scene {
   }
 
   update(_time: number, delta: number): void {
+    applyGravity(this);
     handleMovement(this, delta);
-
-    if (this.player.jump.shouldExecute) executeJump(this, delta);
-    applyGravityAfterJumpWearsOff(this, delta);
 
     eventBus.publish({ event: "sync-meta", message: this });
     eventBus.publish({

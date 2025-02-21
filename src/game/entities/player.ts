@@ -4,9 +4,9 @@ export type Player<T extends GameObjects.Shape> = {
   gameObject: T,
   speed: number;
   jump: {
-    currentHeight: number;
-    maxHeight: number;
-    shouldExecute: boolean;
+    power: number;
+    durationMs: number;
+    interval?: NodeJS.Timeout | undefined;
   }
 }
 

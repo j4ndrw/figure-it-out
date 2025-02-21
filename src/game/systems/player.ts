@@ -2,6 +2,7 @@ import { Playground } from "@/game/scenes/playground";
 import { player } from "../entities/player";
 import { theme } from "@/design-system";
 import { config } from "../config";
+import { checkCollisionWithWorld } from "./physics";
 
 export const createPlayer = (scene: Playground) => {
   scene.player = player({
@@ -16,10 +17,9 @@ export const createPlayer = (scene: Playground) => {
     ),
     speed: 0.2,
     jump: {
-      currentHeight: 0,
-      maxHeight: 10,
-      shouldExecute: false,
-    }
+      power: 1.5,
+      durationMs: 100,
+    },
   });
 
   scene.player.gameObject.body
@@ -29,35 +29,30 @@ export const createPlayer = (scene: Playground) => {
     .setGravityY(config.gravity);
 };
 
-export const applyGravityAfterJumpWearsOff = (
-  scene: Playground,
-  delta: number,
-) => {
-  if (scene.player.jump.currentHeight < scene.player.jump.maxHeight) return;
-
-  scene.player.gameObject.y -= scene.player.speed * delta; // move the player up a bit more for smoothness
-  scene.player.gameObject.body?.asDynamic().setGravity(config.gravity);
-
-  const playerCollision = scene.player.gameObject.body?.asCollidable();
-  if (playerCollision && scene.physics.world.collide(playerCollision)) {
-    scene.player.jump.currentHeight = 0;
-    scene.player.jump.shouldExecute = false;
-  }
-};
-
-export const executeJump = (scene: Playground, delta: number) => {
-  scene.player.gameObject.body?.asDynamic().setGravity(0);
-  scene.player.gameObject.y -= scene.player.speed * delta;
-  scene.player.jump.currentHeight += scene.player.speed * delta;
-}
+export const applyGravity = (scene: Playground) =>
+  scene.player.gameObject.body?.asDynamic().setGravityY(config.gravity);
 
 export const handleMovement = (scene: Playground, delta: number) => {
   const move = (sign: 1 | -1 = 1) =>
     (scene.player.gameObject.x += sign * scene.player.speed * delta);
 
   const jump = () => {
-    if (scene.player.jump.currentHeight !== 0) return;
-    scene.player.jump.shouldExecute = true;
+    if (
+      !checkCollisionWithWorld(scene, scene.player.gameObject.body?.asDynamic(), { skipTopCollision: true })
+    )
+      return;
+
+    if (scene.player.jump.interval) return;
+
+    scene.player.jump.interval = setInterval(() => {
+      scene.player.gameObject.y -=
+        scene.player.speed * scene.player.jump.power * delta;
+    }, 0);
+
+    setTimeout(() => {
+      clearInterval(scene.player.jump.interval);
+      scene.player.jump.interval = undefined;
+    }, scene.player.jump.durationMs);
   };
 
   scene.controls.left.handle(() => move(-1));
