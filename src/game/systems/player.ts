@@ -15,16 +15,13 @@ export const createPlayer = (scene: Playground) => {
         theme.game.player.fill.color.fromHex(),
       ),
     ),
-    speed: 0.2,
-    jump: {
-      power: 1.5,
-      durationMs: 100,
+    speed: 0.15,
+    jump: { power: 1.5, durationMs: 100,
     },
   });
 
   scene.player.gameObject.body
     ?.asDynamic()
-    .setBounce(0)
     .setCollideWorldBounds(true)
     .setGravityY(config.gravity);
 };
