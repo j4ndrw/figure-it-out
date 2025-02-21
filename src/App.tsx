@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { GameMeta } from "./game/types";
 import { Game } from "./game";
-import { useGame } from "./hooks/use-game";
 import { GridWrapper, PromptInputWrapper } from "./styled";
 import { PrimaryButton } from "./design-system/button";
 
@@ -10,8 +9,6 @@ import { ChatTextArea } from "./design-system/textarea";
 
 function App() {
   const metaRef = useRef<GameMeta | null>(null);
-
-  useGame();
 
   return (
     <GridWrapper>
