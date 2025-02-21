@@ -25,7 +25,7 @@ export class Playground extends Scene {
     this.controls = controls({
       left: createControl(this, "A", "ArrowLeft"),
       right: createControl(this, "D", "ArrowRight"),
-      jump: createControl(this, "Spacebar", "W"),
+      jump: createControl(this, " ", "W"),
     });
 
     eventBus.publish({ event: "current-scene-ready", message: this });

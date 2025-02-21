@@ -64,7 +64,7 @@ export const KEYS = {
   X: "X",
   Y: "Y",
   Z: "Z",
-  Spacebar: "Spacebar",
+  " ": " ",
   Enter: "Enter",
   Escape: "Escape",
   Tab: "Tab",

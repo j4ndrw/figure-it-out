@@ -11,8 +11,16 @@ export type Controls<T extends string> = {
 
 export const controls = <T extends string>(controls: Controls<T>) => controls;
 export const createControl: CreateControl = (scene, ...keys) => {
-  const withKeyDownPrefix = (k: string) => `keydown-${k}`;
-  const withKeyUpPrefix = (k: string) => `keyup-${k}`;
+  const map = (k: string) => {
+    switch (k) {
+      case KEYS[" "]:
+        return "SPACE";
+      default:
+        return k;
+    }
+  };
+  const withKeyDownPrefix = (k: string) => `keydown-${map(k)}`;
+  const withKeyUpPrefix = (k: string) => `keyup-${map(k)}`;
 
   let isHandlerSet = false;
   const defaultHandler = () => { };
@@ -33,7 +41,13 @@ export const createControl: CreateControl = (scene, ...keys) => {
         scene.input.keyboard?.on(
           withKeyDownPrefix(key),
           (event: KeyboardEvent) => {
-            if (event.key.length === 1 && event.key.isUpperCase()) return;
+            if (
+              event.key.length === 1 &&
+              /[A-Za-z]/.test(event.key) &&
+              event.key.isUpperCase()
+            ) {
+              return;
+            }
             if (!isKeyDown) {
               isKeyDown = true;
               intervalId = setInterval(() => handler(), 0);
@@ -43,7 +57,12 @@ export const createControl: CreateControl = (scene, ...keys) => {
         scene.input.keyboard?.on(
           withKeyUpPrefix(key),
           (event: KeyboardEvent) => {
-            if (event.key.length === 1 && event.key.isUpperCase()) return;
+            if (
+              event.key.length === 1 &&
+              /[A-Za-z]/.test(event.key) &&
+              event.key.isUpperCase()
+            )
+              return;
             isKeyDown = false;
             clearInterval(intervalId);
           },
