@@ -1,5 +1,9 @@
 declare global {
   interface KeyboardEvent {
+    /**
+     * # WARNING
+     * This is an augmentation built on top of the `KeyboardEvent` prototype. Use with caution!
+     */
     isUpperCaseAlphaCharKey(): boolean;
   }
 }
