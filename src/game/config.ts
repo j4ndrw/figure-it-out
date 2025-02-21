@@ -1,3 +1,1 @@
-export const config = {
-  gravity: 25 * 60,
-};
+export const config = { gravity: 1800 };
