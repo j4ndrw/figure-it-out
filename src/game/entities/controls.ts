@@ -41,13 +41,7 @@ export const createControl: CreateControl = (scene, ...keys) => {
         scene.input.keyboard?.on(
           withKeyDownPrefix(key),
           (event: KeyboardEvent) => {
-            if (
-              event.key.length === 1 &&
-              /[A-Za-z]/.test(event.key) &&
-              event.key.isUpperCase()
-            ) {
-              return;
-            }
+            if (event.isUpperCaseAlphaCharKey()) return;
             if (!isKeyDown) {
               isKeyDown = true;
               intervalId = setInterval(() => handler(), 0);
@@ -57,12 +51,7 @@ export const createControl: CreateControl = (scene, ...keys) => {
         scene.input.keyboard?.on(
           withKeyUpPrefix(key),
           (event: KeyboardEvent) => {
-            if (
-              event.key.length === 1 &&
-              /[A-Za-z]/.test(event.key) &&
-              event.key.isUpperCase()
-            )
-              return;
+            if (event.isUpperCaseAlphaCharKey()) return;
             isKeyDown = false;
             clearInterval(intervalId);
           },
