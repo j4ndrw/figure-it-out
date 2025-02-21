@@ -1,11 +1,12 @@
-import { controls, Controls, createControl } from "@/game/entities/controls";
+import { Controls } from "@/game/entities/controls";
 import { Player } from "@/game/entities/player";
+import { createControls } from "@/game/systems/controls";
+import { sync } from "@/game/systems/event-bus";
 import {
   applyGravity,
   createPlayer,
   handleMovement,
 } from "@/game/systems/player";
-import { eventBus } from "@/tools/event-bus";
 import { createScene } from "@/tools/scene";
 import { Scene, GameObjects } from "phaser";
 
@@ -21,25 +22,15 @@ export class Playground extends Scene {
 
   create() {
     createPlayer(this);
-
-    this.controls = controls({
-      left: createControl(this, "A", "ArrowLeft"),
-      right: createControl(this, "D", "ArrowRight"),
-      jump: createControl(this, " ", "W"),
-    });
-
-    eventBus.publish({ event: "current-scene-ready", message: this });
+    createControls(this);
+    sync.scene(this);
   }
 
   update(_time: number, delta: number): void {
     applyGravity(this);
     handleMovement(this, delta);
 
-    eventBus.publish({ event: "sync-meta", message: this });
-    eventBus.publish({
-      event: "update-world",
-      message: { player: this.player },
-    });
+    sync.meta(this).world({ player: this.player });
   }
 }
 
