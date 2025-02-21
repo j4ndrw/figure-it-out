@@ -1,0 +1,54 @@
+import { KEYS } from "@/game/constants";
+
+type CreateControl = <T extends Phaser.Scene>(
+  scene: T,
+  ...keys: (keyof typeof KEYS)[]
+) => { handle: (handler: () => void) => void };
+
+export type Controls<T extends string> = {
+  [K in T]: ReturnType<CreateControl>;
+};
+
+export const controls = <T extends string>(controls: Controls<T>) => controls;
+export const createControl: CreateControl = (scene, ...keys) => {
+  const withKeyDownPrefix = (k: string) => `keydown-${k}`;
+  const withKeyUpPrefix = (k: string) => `keyup-${k}`;
+
+  let isHandlerSet = false;
+  const defaultHandler = () => { };
+
+  for (const key of keys)
+    scene.input.keyboard?.on(withKeyDownPrefix(key), defaultHandler);
+
+  let isKeyDown = false;
+  let intervalId: NodeJS.Timeout;
+
+  return {
+    handle: (handler) => {
+      if (isHandlerSet) return;
+      isHandlerSet = true;
+
+      for (const key of keys) {
+        scene.input.keyboard?.off(withKeyDownPrefix(key), defaultHandler);
+        scene.input.keyboard?.on(
+          withKeyDownPrefix(key),
+          (event: KeyboardEvent) => {
+            if (event.key.length === 1 && event.key.isUpperCase()) return;
+            if (!isKeyDown) {
+              isKeyDown = true;
+              intervalId = setInterval(() => handler(), 0);
+            }
+          },
+        );
+        scene.input.keyboard?.on(
+          withKeyUpPrefix(key),
+          (event: KeyboardEvent) => {
+            if (event.key.length === 1 && event.key.isUpperCase()) return;
+            isKeyDown = false;
+            clearInterval(intervalId);
+          },
+        );
+      }
+    },
+  };
+};

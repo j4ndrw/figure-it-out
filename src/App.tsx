@@ -18,7 +18,7 @@ function App() {
       <Game ref={metaRef} />
       <PromptInputWrapper>
         <ChatTextArea
-          placeholder={`Ask the trickster for help (e.g. "Can you spawn a jetpack so I can fly to the finish?)`}
+          placeholder={`Ask the trickster for help (e.g. "Can you spawn a jetpack so I can fly to the finish?")`}
         />
         <PrimaryButton>
           <PenIcon />

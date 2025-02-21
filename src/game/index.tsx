@@ -12,7 +12,8 @@ type Props = {
 
 export const Game = forwardRef<GameMeta, Props>(
   ({ onSceneUpdated: runScene }, ref) => {
-    const { syncMeta } = useGameStore();
+    const { updateWorld, syncMeta } = useGameStore();
+
     const game = useRef<Phaser.Game | null>(null!);
 
     const saveMeta = (meta: GameMeta) => {
@@ -29,7 +30,7 @@ export const Game = forwardRef<GameMeta, Props>(
         game.current.destroy(true);
         if (game.current !== null) game.current = null;
       };
-    }, [ref]);
+    }, []);
 
     useEffect(
       () =>
@@ -37,10 +38,31 @@ export const Game = forwardRef<GameMeta, Props>(
           event: "current-scene-ready",
           listener: (scene) => {
             runScene?.(scene);
+            eventBus.publish({ event: "sync-meta", message: scene });
             saveMeta({ game: game.current, scene });
           },
         }),
-      [runScene, ref],
+      [runScene],
+    );
+
+    useEffect(
+      () =>
+        eventBus.subscribe({
+          event: "sync-meta",
+          listener: (scene) => {
+            saveMeta({ game: game.current, scene });
+          },
+        }),
+      [],
+    );
+
+    useEffect(
+      () =>
+        eventBus.subscribe({
+          event: "update-world",
+          listener: updateWorld,
+        }),
+      [ref],
     );
 
     return <GameBox id={GAME_CONTAINER_ID} />;

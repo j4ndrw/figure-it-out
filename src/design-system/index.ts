@@ -13,7 +13,7 @@ export const theme = {
       body: "16px",
       heading: "24px",
       subheading: "20px",
-    }
+    },
   },
   chatTextArea: {
     background: "#2e2933",
@@ -31,6 +31,11 @@ export const theme = {
   game: {
     box: {
       border: {
+        color: "#FFFFFF",
+      },
+    },
+    player: {
+      fill: {
         color: "#FFFFFF",
       },
     },

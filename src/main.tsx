@@ -4,7 +4,8 @@ import App from "./App.tsx";
 import { ThemeProvider, Global } from "@emotion/react";
 import { theme } from "./design-system/index.ts";
 import globalStyles from "./design-system/global-styles.ts";
-import './augmentations.ts';
+import './augmentations/string.ts';
+import './augmentations/phaser/unsafe.ts';
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
