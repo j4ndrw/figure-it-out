@@ -8,6 +8,7 @@ export const createPlatforms = (scene: Playground) => {
   const platformsToGenerate = randomInt(1, config.maxPlatforms); // Generate between 1 and 10 platforms
 
   for (let i = 0; i < platformsToGenerate; ++i) {
+    const isStatic = randomInt(0, 100) < 75;
     let gameObject: Phaser.GameObjects.Rectangle | undefined = undefined;
     let attempts = 0;
     const maxAttempts = 10000; // Limit attempts to find a valid position
@@ -39,11 +40,17 @@ export const createPlatforms = (scene: Playground) => {
             height,
             theme.game.platform.fill.color.fromHex(),
           ),
-          true,
+          isStatic,
         )
         .setOrigin(0.5, 0.5)
         .setStrokeStyle(1, "#FFFFFF".fromHex(), 1);
-      const collider = scene.physics.add.collider(gameObject, scene.player.gameObject);
+      const colliders = scene.platforms
+        .map((platform) =>
+          scene.physics.add.collider(gameObject!, platform.gameObject),
+        )
+        .concat(
+          scene.physics.add.collider(gameObject, scene.player.gameObject),
+        );
 
       // Check for collisions with existing platforms
       if (
@@ -58,7 +65,7 @@ export const createPlatforms = (scene: Playground) => {
           ),
         )
       ) {
-        collider.destroy();
+        colliders.forEach((c) => c.destroy());
         gameObject.destroy(true);
         gameObject = undefined;
       }
@@ -71,22 +78,7 @@ export const createPlatforms = (scene: Playground) => {
         id: uuidv4(),
         gameObject,
         deadly: randomInt(0, 100) > 75,
-        moving: {
-          x: randomInt(0, 100) > 75 ? generateMovement() : undefined,
-          y: randomInt(0, 100) > 75 ? generateMovement() : undefined,
-        },
       });
     }
   }
-};
-
-const generateMovement = () => {
-  const a = randomInt(0, 200);
-  const b = randomInt(0, 200);
-  return {
-    from: Math.min(a, b),
-    to: Math.max(a, b),
-    speed: randomInt(0, 3),
-    cycleMs: randomInt(0, 10000),
-  };
 };
