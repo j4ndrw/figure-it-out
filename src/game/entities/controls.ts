@@ -3,7 +3,7 @@ import { KEYS } from "@/game/constants";
 type CreateControl = <T extends Phaser.Scene>(
   scene: T,
   ...keys: (keyof typeof KEYS)[]
-) => { handle: (handler: () => void) => void };
+) => { handle: (handler: () => void, off?: () => void) => void };
 
 export type Controls<T extends string> = {
   [K in T]: ReturnType<CreateControl>;
@@ -32,7 +32,7 @@ export const createControl: CreateControl = (scene, ...keys) => {
   let intervalId: NodeJS.Timeout;
 
   return {
-    handle: (handler) => {
+    handle: (handler, off) => {
       if (isHandlerSet) return;
       isHandlerSet = true;
 
@@ -52,6 +52,7 @@ export const createControl: CreateControl = (scene, ...keys) => {
           withKeyUpPrefix(key),
           (event: KeyboardEvent) => {
             if (event.isUpperCaseAlphaCharKey()) return;
+            off?.()
             isKeyDown = false;
             clearInterval(intervalId);
           },

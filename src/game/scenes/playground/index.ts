@@ -1,7 +1,9 @@
 import { Controls } from "@/game/entities/controls";
+import { Platform } from "@/game/entities/platform";
 import { Player } from "@/game/entities/player";
 import { createControls } from "@/game/systems/controls";
 import { sync } from "@/game/systems/event-bus";
+import { createPlatforms } from "@/game/systems/platform";
 import {
   applyGravity,
   createPlayer,
@@ -14,6 +16,7 @@ const SCENE_NAME = "Playground";
 
 export class Playground extends Scene {
   player: Player<GameObjects.Rectangle>;
+  platforms: Platform<GameObjects.Rectangle>[] = [];
   controls: Controls<"left" | "right" | "jump">;
 
   constructor() {
@@ -23,6 +26,7 @@ export class Playground extends Scene {
   create() {
     createPlayer(this);
     createControls(this);
+    createPlatforms(this);
     sync.scene(this);
   }
 

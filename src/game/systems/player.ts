@@ -2,21 +2,24 @@ import { Playground } from "@/game/scenes/playground";
 import { player } from "../entities/player";
 import { theme } from "@/design-system";
 import { config } from "../config";
-import { checkCollisionWithWorld } from "./physics";
 
 export const createPlayer = (scene: Playground) => {
   scene.player = player({
     gameObject: scene.physics?.add.existing(
-      scene.add.rectangle(
-        50,
-        50,
-        20,
-        20,
-        theme.game.player.fill.color.fromHex(),
-      ),
+      scene.add
+        .rectangle(
+          scene.physics.world.bounds.width / 2,
+          scene.physics.world.bounds.height,
+          20,
+          20,
+          theme.game.player.fill.color.fromHex(),
+        )
+        .setOrigin(0.5, 0.5),
     ),
-    speed: 0.15,
-    jump: { power: 1.5, durationMs: 100,
+    speed: 20,
+    jump: {
+      power: 600,
+      durationMs: 100,
     },
   });
 
@@ -30,29 +33,22 @@ export const applyGravity = (scene: Playground) =>
   scene.player.gameObject.body?.asDynamic().setGravityY(config.gravity);
 
 export const handleMovement = (scene: Playground, delta: number) => {
-  const move = (sign: 1 | -1 = 1) =>
-    (scene.player.gameObject.x += sign * scene.player.speed * delta);
-
-  const jump = () => {
-    if (
-      !checkCollisionWithWorld(scene, scene.player.gameObject.body?.asDynamic(), { skipTopCollision: true })
-    )
-      return;
-
-    if (scene.player.jump.interval) return;
-
-    scene.player.jump.interval = setInterval(() => {
-      scene.player.gameObject.y -=
-        scene.player.speed * scene.player.jump.power * delta;
-    }, 0);
-
-    setTimeout(() => {
-      clearInterval(scene.player.jump.interval);
-      scene.player.jump.interval = undefined;
-    }, scene.player.jump.durationMs);
+  const move = (sign: 1 | -1 = 1) => {
+    const dx = sign * scene.player.speed * delta;
+    scene.player.gameObject.body?.asDynamic().setVelocityX(dx);
   };
 
-  scene.controls.left.handle(() => move(-1));
-  scene.controls.right.handle(() => move(1));
+  const stopMoving = () =>
+    scene.player.gameObject.body?.asDynamic().setVelocityX(0);
+
+  const jump = () => {
+    if (scene.player.gameObject.body?.asDynamic().onFloor())
+      scene.player.gameObject.body
+        ?.asDynamic()
+        .setVelocityY(-scene.player.jump.power);
+  };
+
+  scene.controls.left.handle(() => move(-1), stopMoving);
+  scene.controls.right.handle(() => move(1), stopMoving);
   scene.controls.jump.handle(jump);
 };

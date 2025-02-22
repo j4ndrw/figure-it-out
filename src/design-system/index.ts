@@ -39,6 +39,11 @@ export const theme = {
         color: "#FFFFFF",
       },
     },
+    platform: {
+      fill: {
+        color: "#F2EBCF",
+      },
+    },
     width: (options?: { withUnits: boolean }) => {
       const value = 1280;
 
