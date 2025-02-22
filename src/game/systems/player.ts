@@ -5,6 +5,7 @@ import { config } from "../config";
 
 export const createPlayer = (scene: Playground) => {
   scene.player = player({
+    state: 'alive',
     gameObject: scene.physics?.add.existing(
       scene.add
         .rectangle(
@@ -52,3 +53,8 @@ export const handleMovement = (scene: Playground, delta: number) => {
   scene.controls.right.handle(() => move(1), stopMoving);
   scene.controls.jump.handle(jump);
 };
+
+export const handlePlayerDeath = (scene: Playground) => {
+  scene.player.state = 'dead';
+  scene.player.gameObject.destroy();
+}

@@ -6,8 +6,11 @@ import { PrimaryButton } from "./design-system/button";
 
 import { PenIcon } from "lucide-react";
 import { ChatTextArea } from "./design-system/textarea";
+import { useGameStore } from "./store";
+import { YouDiedScreen } from "./components/you-died-screen";
 
 function App() {
+  const { world } = useGameStore();
   const metaRef = useRef<GameMeta | null>(null);
 
   return (
@@ -22,6 +25,7 @@ function App() {
           Send
         </PrimaryButton>
       </PromptInputWrapper>
+      <YouDiedScreen />
     </GridWrapper>
   );
 }

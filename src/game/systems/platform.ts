@@ -3,12 +3,14 @@ import { theme } from "@/design-system";
 import { randomInt } from "../math/random";
 import { Playground } from "../scenes/playground";
 import { config } from "../config";
+import { handlePlayerDeath } from "./player";
 
 export const createPlatforms = (scene: Playground) => {
   const platformsToGenerate = randomInt(1, config.maxPlatforms); // Generate between 1 and 10 platforms
 
   for (let i = 0; i < platformsToGenerate; ++i) {
-    const isStatic = randomInt(0, 100) < 75;
+    const isDeadly = randomInt(0, 100) > 75;
+
     let gameObject: Phaser.GameObjects.Rectangle | undefined = undefined;
     let attempts = 0;
     const maxAttempts = 10000; // Limit attempts to find a valid position
@@ -38,18 +40,21 @@ export const createPlatforms = (scene: Playground) => {
             y,
             width,
             height,
-            theme.game.platform.fill.color.fromHex(),
+            isDeadly ? theme.game.platform.deadly.fill.color.fromHex() : theme.game.platform.fill.color.fromHex(),
           ),
-          isStatic,
+          true,
         )
         .setOrigin(0.5, 0.5)
-        .setStrokeStyle(1, "#FFFFFF".fromHex(), 1);
+        .setStrokeStyle(isDeadly ? 0 : 1, "#FFFFFF".fromHex(), 1);
       const colliders = scene.platforms
         .map((platform) =>
           scene.physics.add.collider(gameObject!, platform.gameObject),
         )
         .concat(
-          scene.physics.add.collider(gameObject, scene.player.gameObject),
+          scene.physics.add.collider(gameObject, scene.player.gameObject, () => {
+          if (!isDeadly) return;
+          handlePlayerDeath(scene);
+        }),
         );
 
       // Check for collisions with existing platforms
@@ -77,7 +82,7 @@ export const createPlatforms = (scene: Playground) => {
       scene.platforms.push({
         id: uuidv4(),
         gameObject,
-        deadly: randomInt(0, 100) > 75,
+        deadly: isDeadly
       });
     }
   }
