@@ -1,3 +1,4 @@
+import { YOU_DIED_AUDIO_KEY } from "@/game/constants";
 import { Controls } from "@/game/entities/controls";
 import { Platform } from "@/game/entities/platform";
 import { Player } from "@/game/entities/player";
@@ -19,11 +20,23 @@ export class Playground extends Scene {
   platforms: Platform<GameObjects.Rectangle>[] = [];
   controls: Controls<"left" | "right" | "jump">;
 
+  youDiedSound:
+    | Phaser.Sound.NoAudioSound
+    | Phaser.Sound.HTML5AudioSound
+    | Phaser.Sound.WebAudioSound
+    | null;
+
   constructor() {
     super(SCENE_NAME);
   }
 
   create() {
+    this.youDiedSound = this.sound.add(YOU_DIED_AUDIO_KEY);
+    this.youDiedSound.on("complete", () => {
+      this.youDiedSound?.destroy();
+      this.youDiedSound = null;
+    });
+
     createPlayer(this);
     createControls(this);
     createPlatforms(this);
