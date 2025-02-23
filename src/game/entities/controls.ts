@@ -1,6 +1,6 @@
 import { KEYS } from "@/game/constants";
 
-type CreateControl = <T extends Phaser.Scene>(
+type CreateControl = <T extends Phaser.Scene & { isFocused: boolean }>(
   scene: T,
   ...keys: (keyof typeof KEYS)[]
 ) => { handle: (handler: () => void, options ?: Partial<{off: () => void}>) => void };
@@ -11,9 +11,10 @@ export type Controls<T extends string> = {
 
 export const controls = <T extends string>(controls: Controls<T>) => controls;
 export const createControl: CreateControl = (
-  { input: { keyboard } },
+  scene,
   ...keys
 ) => {
+  const { input: { keyboard } } = scene;
   const map = (k: string) => {
     switch (k) {
       case KEYS[" "]:
@@ -44,7 +45,10 @@ export const createControl: CreateControl = (
           if (event.isUpperCaseAlphaCharKey()) return;
           if (!isKeyDown) {
             isKeyDown = true;
-            intervalId = setInterval(() => handler(), 0);
+            intervalId = setInterval(() => {
+              if (!scene.isFocused) return;
+              handler();
+            });
           }
         });
         keyboard?.on(withKeyUpPrefix(key), (event: KeyboardEvent) => {

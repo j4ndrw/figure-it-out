@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
-// Constrain EventMap type to extend Record<string, (...args: any[]) => void>
+// TECH-DEBT(j4ndrw): Constrain EventMap type to extend Record<string, (...args: any[]) => void>
 
 import { World } from "@/game/world";
 
