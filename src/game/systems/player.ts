@@ -2,11 +2,13 @@ import { Playground } from "@/game/scenes/playground";
 import { player } from "../entities/player";
 import { theme } from "@/design-system";
 import { config } from "../config";
+import { checkDynamic, dynamic, withPhysics } from "../tools";
 
-export const createPlayer = (scene: Playground) => {
-  scene.player = player({
-    state: 'alive',
-    gameObject: scene.physics?.add.existing(
+export const createPlayer = (scene: Playground) =>
+  player({
+    state: "alive",
+    gameObject: withPhysics(
+      scene,
       scene.add
         .rectangle(
           scene.physics.world.bounds.width / 2,
@@ -16,45 +18,50 @@ export const createPlayer = (scene: Playground) => {
           theme.game.player.fill.color.fromHex(),
         )
         .setOrigin(0.5, 0.5),
-    ),
+    )
+      .configureBody((body) =>
+        body.setCollideWorldBounds(true).setGravityY(config.gravity),
+      )
+      .on("destroy", () => {
+        scene.player.state = "dead";
+        if (!scene.youDiedSound?.isPlaying) scene.youDiedSound?.play();
+      }),
     speed: 20,
-    jump: {
-      power: 600,
-      durationMs: 100,
-    },
+    jump: { power: 600, durationMs: 100 },
   });
 
-  scene.player.gameObject.body
-    ?.asDynamic()
-    .setCollideWorldBounds(true)
-    .setGravityY(config.gravity);
+export const applyGravity = ({ player: { gameObject } }: Playground) => {
+  if (!checkDynamic(gameObject)) return;
+  return dynamic(gameObject).setGravityY(config.gravity);
 };
 
-export const applyGravity = (scene: Playground) =>
-  scene.player.gameObject.body?.asDynamic().setGravityY(config.gravity);
-
-export const handleMovement = (scene: Playground, delta: number) => {
+export const handleMovement = (
+  { player: { gameObject, jump, speed }, controls }: Playground,
+  delta: number,
+) => {
   const move = (sign: 1 | -1 = 1) => {
-    const dx = sign * scene.player.speed * delta;
-    scene.player.gameObject.body?.asDynamic().setVelocityX(dx);
+    if (!checkDynamic(gameObject)) return;
+
+    const dx = sign * speed * delta;
+    dynamic(gameObject).setVelocityX(dx);
   };
 
-  const stopMoving = () =>
-    scene.player.gameObject.body?.asDynamic().setVelocityX(0);
-
-  const jump = () => {
-    if (scene.player.gameObject.body?.asDynamic().onFloor())
-      scene.player.gameObject.body
-        ?.asDynamic()
-        .setVelocityY(-scene.player.jump.power);
+  const stopMoving = () => {
+    if (!checkDynamic(gameObject)) return;
+    dynamic(gameObject).setVelocityX(0);
   };
 
-  scene.controls.left.handle(() => move(-1), stopMoving);
-  scene.controls.right.handle(() => move(1), stopMoving);
-  scene.controls.jump.handle(jump);
+  const executeJump = () => {
+    if (!checkDynamic(gameObject)) return;
+    if (!dynamic(gameObject).onFloor()) return;
+
+    dynamic(gameObject).setVelocityY(-jump.power);
+  };
+
+  controls.left.handle(() => move(-1), { off: stopMoving });
+  controls.right.handle(() => move(1), { off: stopMoving });
+  controls.jump.handle(executeJump);
 };
 
-export const handlePlayerDeath = (scene: Playground) => {
-  scene.player.state = 'dead';
-  scene.player.gameObject.destroy();
-}
+export const handlePlayerDeath = ({ player: { gameObject } }: Playground) =>
+  gameObject.destroy(true);

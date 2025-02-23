@@ -37,9 +37,9 @@ export class Playground extends Scene {
       this.youDiedSound = null;
     });
 
-    createPlayer(this);
-    createControls(this);
-    createPlatforms(this);
+    this.player = createPlayer(this);
+    this.controls = createControls(this);
+    this.platforms = createPlatforms(this);
     sync.scene(this);
   }
 

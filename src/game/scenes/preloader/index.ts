@@ -1,7 +1,6 @@
 import { Scene } from "phaser";
 import { playground } from "../playground";
 import { createScene } from "@/tools/scene";
-import { eventBus } from "@/tools/event-bus";
 import { world } from "@/game/world";
 import { sync } from "@/game/systems/event-bus";
 

@@ -1,7 +1,7 @@
 import { eventBus } from "@/tools/event-bus";
 import { World } from "../world";
 
-class Sync {
+export const sync = new (class {
   scene(scene: Phaser.Scene) {
     eventBus.publish({ event: "current-scene-ready", message: scene });
     return this;
@@ -12,8 +12,6 @@ class Sync {
   }
   world(world: World) {
     eventBus.publish({ event: "update-world", message: world });
-    return this
+    return this;
   }
-};
-
-export const sync = new Sync();
+})();

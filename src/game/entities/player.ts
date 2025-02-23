@@ -1,6 +1,6 @@
 import { GameObjects } from "phaser";
 
-export type Player<T extends GameObjects.Shape> = {
+export type Player<T extends GameObjects.GameObject> = {
   gameObject: T,
   speed: number;
   jump: {
