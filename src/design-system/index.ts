@@ -33,7 +33,7 @@ export const theme = {
     player: { fill: { color: "#FFFFFF" } },
     platform: {
       deadly: { fill: { color: "#BB2A25" } },
-      fill: { color: "#F2EBCF" },
+      fill: { color: "#FFD97D" },
     },
     width: (options?: { withUnits: boolean }) => {
       const value = 1280;

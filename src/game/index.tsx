@@ -14,7 +14,7 @@ export const Game = forwardRef<GameMeta, Props>(
   ({ onSceneUpdated: runScene }, ref) => {
     const { updateWorld, syncMeta } = useGameStore();
 
-    const game = useRef<Phaser.Game | null>(null!);
+    const game = useRef<Phaser.Game | null>(null);
 
     const saveMeta = (meta: GameMeta) => {
       if (typeof ref === "function") ref(meta);
@@ -62,7 +62,7 @@ export const Game = forwardRef<GameMeta, Props>(
           event: "update-world",
           listener: updateWorld,
         }),
-      [ref],
+      [],
     );
 
     return <GameBox id={GAME_CONTAINER_ID} />;

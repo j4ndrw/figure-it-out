@@ -1,5 +1,6 @@
 import { GameMeta } from "@/game/types";
-import { create } from "zustand";
+import { createStore } from "zustand/vanilla";
+import { useStore } from "zustand";
 import { World } from "@/game/world";
 
 type GameState = {
@@ -9,7 +10,7 @@ type GameState = {
   updateWorld: (w: World) => void;
 };
 
-export const useGameStore = create<GameState>((set, get) => ({
+export const gameStore = createStore<GameState>((set, get) => ({
   world: {},
   updateWorld: (w) => {
     const { world } = get();
@@ -23,3 +24,5 @@ export const useGameStore = create<GameState>((set, get) => ({
   meta: { game: null, scene: null },
   syncMeta: (meta) => set({ meta }),
 }));
+
+export const useGameStore = () => useStore(gameStore);

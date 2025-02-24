@@ -26,6 +26,8 @@ export class Playground extends Scene {
     | Phaser.Sound.WebAudioSound
     | null;
 
+  isFocused = true;
+
   constructor() {
     super(SCENE_NAME);
   }
@@ -37,10 +39,14 @@ export class Playground extends Scene {
       this.youDiedSound = null;
     });
 
-    createPlayer(this);
-    createControls(this);
-    createPlatforms(this);
+    this.player = createPlayer(this);
+    this.controls = createControls(this);
+    this.platforms = createPlatforms(this);
     sync.scene(this);
+  }
+
+  setIsFocused(value: boolean) {
+    this.isFocused = value;
   }
 
   update(_time: number, delta: number): void {
