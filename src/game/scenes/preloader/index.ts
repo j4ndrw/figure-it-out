@@ -1,6 +1,8 @@
 import { Scene } from "phaser";
 import { playground } from "../playground";
 import { createScene } from "@/tools/scene";
+import { world } from "@/game/world";
+import { sync } from "@/game/systems/event-bus";
 
 const SCENE_NAME = 'Preloader';
 
@@ -10,7 +12,7 @@ class Preloader extends Scene {
   }
 
   init() {
-    // Things that should load before the main scenes load
+    sync.world(world());
   }
 
   create() {
