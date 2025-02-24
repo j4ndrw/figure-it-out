@@ -1,5 +1,6 @@
 export const GAME_CONTAINER_ID = "figure-it-out-game-container";
 export const GAME_CANVAS_ID = "figure-it-out-game-canvas";
+export const YOU_DIED_AUDIO_KEY = "you-died";
 
 export const KEYS = {
   "0": "0",
