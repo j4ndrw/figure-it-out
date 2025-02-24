@@ -1,7 +1,7 @@
 import { GameMeta } from "@/game/types";
 import { Scene } from "phaser";
 
-export const createScene = <TClass, TName extends string>(options: {
+export const createScene = <TClass extends { 'prototype': unknown }, TName extends string>(options: {
   scene: TClass;
   name: TName;
 }) => {
@@ -10,6 +10,6 @@ export const createScene = <TClass, TName extends string>(options: {
       meta.scene as TScene | null,
   });
   return options as typeof options & {
-    retrieveFrom: <TScene extends Scene>(meta: GameMeta) => TScene;
+    retrieveFrom: (meta: GameMeta) => TClass['prototype'];
   };
 };
