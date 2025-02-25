@@ -31,46 +31,26 @@ export const createPlayer = (scene: Playground) =>
   });
 
 export const applyGravity = ({ player: { gameObject } }: Playground) =>
-  dynamic(gameObject).match(
-    (body) => body.setGravityY(config.gravity),
-    (err) => {
-      console.warn("Cannot apply gravity to player. Reason:", err.message);
-    },
-  );
+  dynamic(gameObject).map((body) => body.setGravityY(config.gravity));
 
 export const handleMovement = (
   { player: { gameObject, jump, speed }, controls }: Playground,
   delta: number,
 ) => {
   const move = (sign: 1 | -1 = 1) =>
-    dynamic(gameObject).match(
-      (body) => {
-        const dx = sign * speed * delta;
-        return body.setVelocityX(dx);
-      },
-      (err) => {
-        console.warn("Cannot move player. Reason:", err.message);
-      },
-    );
+    dynamic(gameObject).map((body) => {
+      const dx = sign * speed * delta;
+      return body.setVelocityX(dx);
+    });
 
   const stopMoving = () =>
-    dynamic(gameObject).match(
-      (body) => body.setVelocityX(0),
-      (err) => {
-        console.warn("Cannot stop moving player. Reason:", err.message);
-      },
-    );
+    dynamic(gameObject).map((body) => body.setVelocityX(0));
 
   const executeJump = () =>
-    dynamic(gameObject).match(
-      (body) => {
-        if (!body.onFloor()) return;
-        return body.setVelocityY(-jump.power);
-      },
-      (err) => {
-        console.warn("Cannot make player jump. Reason:", err.message);
-      },
-    );
+    dynamic(gameObject).map((body) => {
+      if (!body.onFloor()) return;
+      return body.setVelocityY(-jump.power);
+    });
 
   controls.left.handle(() => move(-1), { off: stopMoving });
   controls.right.handle(() => move(1), { off: stopMoving });

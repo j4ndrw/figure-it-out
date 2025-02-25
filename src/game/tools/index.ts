@@ -1,5 +1,5 @@
 import { cast } from "@/tools/cast";
-import { ok, err, Result } from "neverthrow";
+import { ok, err, Result } from "@/tools/result";
 
 type DynamicGameObjectError =
   | { type: "NULLISH_GAME_OBJECT"; message: "Passed game object is nullish!" }
@@ -60,18 +60,18 @@ export const withPhysics = <T extends Phaser.GameObjects.GameObject>(
     configureBody: (
       cb: (body: Phaser.Physics.Arcade.Body) => Phaser.Physics.Arcade.Body,
     ) =>
-      dynamic(gameObjectWithPhysics).match(
-        (body) => {
+      dynamic(gameObjectWithPhysics).match({
+        ok: (body) => {
           gameObjectWithPhysics.body = cb(body) as unknown as T["body"];
           return gameObjectWithPhysics;
         },
-        (err) => {
+        err: (err) => {
           console.warn(
             "[PHYSICS - WARNING] Cannot configure game object body as it does not contain dynamic physics. Reason: ",
             err.message,
           );
         },
-      ),
+      }),
   });
   return gameObjectWithPhysics as T & {
     configureBody: (
