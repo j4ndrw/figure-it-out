@@ -1,39 +1,52 @@
-import { assert, assertKeyInObject, assertNotNullish } from "@/tools/assert";
 import { cast } from "@/tools/cast";
+import { ok, err, Result } from "neverthrow";
+
+type DynamicGameObjectError =
+  | { type: "NULLISH_GAME_OBJECT"; message: "Passed game object is nullish!" }
+  | {
+    type: "NULLISH_GAME_OBJECT_BODY";
+    message: "Passed game object has a nullish body!";
+  }
+  | {
+    type: "GAME_OBJECT_DOES_NOT_HAVE_PHYSICS_ATTACHED";
+    message: "Passed game object body does not have physics related fields!";
+  }
+  | {
+    type: "GAME_OBJECT_IS_STATIC";
+    message: "Passed game object body is static and cannot be interpreted as dynamic!";
+  };
 
 export const dynamic = <T extends Phaser.GameObjects.GameObject>(
   gameObject: T | null | undefined,
-): Phaser.Physics.Arcade.Body => {
-  assertNotNullish(gameObject, "Passed game object is nullish!");
-  assertNotNullish(gameObject.body, "Passed game object has a nullish body!");
-  assertKeyInObject(
-    gameObject.body,
-    "physicsType",
-    "Passed game object body does not have physics related fields!",
-  );
-  assert(
-    cast<Phaser.Physics.Arcade.Body>(gameObject.body).physicsType ===
-    Phaser.Physics.Arcade.DYNAMIC_BODY,
-    "Passed game object body is static and cannot be interpreted as dynamic!",
-  );
+): Result<Phaser.Physics.Arcade.Body, DynamicGameObjectError> => {
+  if (!gameObject)
+    return err({
+      type: "NULLISH_GAME_OBJECT",
+      message: "Passed game object is nullish!",
+    } as DynamicGameObjectError);
+  if (!gameObject.body)
+    return err({
+      type: "NULLISH_GAME_OBJECT_BODY",
+      message: "Passed game object has a nullish body!",
+    } as DynamicGameObjectError);
+  if (!("physicsType" in gameObject.body))
+    return err({
+      type: "GAME_OBJECT_DOES_NOT_HAVE_PHYSICS_ATTACHED",
+      message: "Passed game object body does not have physics related fields!",
+    } as DynamicGameObjectError);
+  if (
+    cast<Phaser.Physics.Arcade.Body>(gameObject.body).physicsType !==
+    Phaser.Physics.Arcade.DYNAMIC_BODY
+  )
+    return err({
+      type: "GAME_OBJECT_IS_STATIC",
+      message:
+        "Passed game object body is static and cannot be interpreted as dynamic!",
+    } as DynamicGameObjectError);
 
-  return cast<Phaser.Physics.Arcade.Body>(gameObject.body);
+  return ok(cast<Phaser.Physics.Arcade.Body>(gameObject.body));
 };
 
-export const checkDynamic = <T extends Phaser.GameObjects.GameObject>(
-  gameObject: T | null | undefined,
-  onError?: (err: Error) => void,
-) => {
-  try {
-    dynamic(gameObject);
-    return true;
-  } catch (err) {
-    onError?.(err as Error);
-    return false;
-  }
-};
-
-// FIXME(j4ndrw): Maybe implement this in a way that doesn't suck?
 export const withPhysics = <T extends Phaser.GameObjects.GameObject>(
   scene: Phaser.Scene,
   gameObject: T,
@@ -46,18 +59,19 @@ export const withPhysics = <T extends Phaser.GameObjects.GameObject>(
   Object.assign(gameObjectWithPhysics, {
     configureBody: (
       cb: (body: Phaser.Physics.Arcade.Body) => Phaser.Physics.Arcade.Body,
-    ) => {
-      if (!checkDynamic(gameObjectWithPhysics)) {
-        console.warn(
-          "[PHYSICS - WARNING] Cannot configure game object body as it does not contain dynamic physics",
-        );
-        return;
-      }
-      gameObjectWithPhysics.body = cb(
-        dynamic(gameObjectWithPhysics),
-      ) as unknown as T["body"];
-      return gameObjectWithPhysics;
-    },
+    ) =>
+      dynamic(gameObjectWithPhysics).match(
+        (body) => {
+          gameObjectWithPhysics.body = cb(body) as unknown as T["body"];
+          return gameObjectWithPhysics;
+        },
+        (err) => {
+          console.warn(
+            "[PHYSICS - WARNING] Cannot configure game object body as it does not contain dynamic physics. Reason: ",
+            err.message,
+          );
+        },
+      ),
   });
   return gameObjectWithPhysics as T & {
     configureBody: (
