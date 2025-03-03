@@ -2,7 +2,7 @@ import { Playground } from "@/game/scenes/playground";
 import { player } from "../entities/player";
 import { theme } from "@/design-system";
 import { config } from "../config";
-import { checkDynamic, dynamic, withPhysics } from "../tools";
+import { dynamic, withPhysics } from "../tools";
 
 export const createPlayer = (scene: Playground) =>
   player({
@@ -30,33 +30,27 @@ export const createPlayer = (scene: Playground) =>
     jump: { power: 600, durationMs: 100 },
   });
 
-export const applyGravity = ({ player: { gameObject } }: Playground) => {
-  if (!checkDynamic(gameObject)) return;
-  return dynamic(gameObject).setGravityY(config.gravity);
-};
+export const applyGravity = ({ player: { gameObject } }: Playground) =>
+  dynamic(gameObject).map((body) => body.setGravityY(config.gravity));
 
 export const handleMovement = (
   { player: { gameObject, jump, speed }, controls }: Playground,
   delta: number,
 ) => {
-  const move = (sign: 1 | -1 = 1) => {
-    if (!checkDynamic(gameObject)) return;
+  const move = (sign: 1 | -1 = 1) =>
+    dynamic(gameObject).map((body) => {
+      const dx = sign * speed * delta;
+      return body.setVelocityX(dx);
+    });
 
-    const dx = sign * speed * delta;
-    dynamic(gameObject).setVelocityX(dx);
-  };
+  const stopMoving = () =>
+    dynamic(gameObject).map((body) => body.setVelocityX(0));
 
-  const stopMoving = () => {
-    if (!checkDynamic(gameObject)) return;
-    dynamic(gameObject).setVelocityX(0);
-  };
-
-  const executeJump = () => {
-    if (!checkDynamic(gameObject)) return;
-    if (!dynamic(gameObject).onFloor()) return;
-
-    dynamic(gameObject).setVelocityY(-jump.power);
-  };
+  const executeJump = () =>
+    dynamic(gameObject).map((body) => {
+      if (!body.onFloor()) return;
+      return body.setVelocityY(-jump.power);
+    });
 
   controls.left.handle(() => move(-1), { off: stopMoving });
   controls.right.handle(() => move(1), { off: stopMoving });
